@@ -12,7 +12,7 @@ class CalcController {
         this.initButtomEvents();
 
     }
-
+    // TRATANDO O INTERVALO DE DATA 
     initialize(){
 
         this.setDisplayDateTime();  
@@ -22,7 +22,7 @@ class CalcController {
         }, 1000);// Os parâmetros são em milisegundos
 
     }
-
+    // TRATANDO EVENTOS
     addEventListenerAll(element, events, fn){
 
         events.split(' ').forEach(event =>{
@@ -32,31 +32,72 @@ class CalcController {
         });
 
     }
-
+    // LIMPAR TUDO
     clearAll(){
 
         this._operation = [];
 
     }
-
+    // LIMPAR O ULTIMO VALOR
     clearEntry(){
 
         this._operation.pop();
 
-    }
-
+    }   
+    // TRATAR ERROS
     setError(){
         this.displayCalc = "Error";
     }
+    //RETORNAR O ULTIMO VALOR INSERIDO
+    getLastOperation() {
 
+      return this._operation[this._operation.length - 1];
+
+    }
+    // VER O ÚLTIMO VALOR INSERIDO
+    setLastOperation(value){
+
+        this._operation[this._operation.length - 1] = value;
+
+    }
+    // TRATAR OPERADORES
+    isOperator(value){
+
+       return( ['+','-','*','%','/'].indexOf(value) > -1); // Não precisa de if ou else, pois ele ja retorna True or False
+        
+    }
+/* VALIDAÇÃO PARA OS BOTÕES, SE É UM NÚMERO, ACRESCENTA NO ARRAY, SEM MUDAR A POSIÇÃO */
     addOperation(value){
+        console.log('A', isNaN(this.getLastOperation()));
 
-        this._operation.push(value);
+        if (isNaN(this.getLastOperation())){
+            //String
+            if(this.isOperator(value)){
+                //trocar o operador
+                this.setLastOperation(value);
+
+             } else if(isNaN(value)){
+                //outra coisa
+                
+                console.log(value);
+
+                } else{
+                    this._operation.push(value);
+                }
+            
+
+        } else{
+            //Number
+           let newValue = this.getLastOperation().toString() + value.toString();
+           this.setLastOperation(parseInt(newValue)); 
+        }
+
 
         console.log(this._operation);
 
     }
 
+    /* CASOS DE CLICKS DO BOTÃO*/
 
     execBtn(value){
         switch (value){
@@ -68,22 +109,25 @@ class CalcController {
                 this.clearEntry();
                  break;
             case 'soma':
-                
+                this.addOperation('+')
                  break;
             case 'subtracao':
-                
+                this.addOperation('-')
                  break;
             case 'divisao':
-            
+                this.addOperation('/')
                  break;
             case 'multiplicacao':
-                
+                this.addOperation('*')
                  break;
             case 'porcento':
-                
+                this.addOperation('%')
                  break;
             case 'igual':
                 
+                 break;
+            case 'ponto':
+                this.addOperation('.')
                  break;
 
             case '0':
@@ -106,8 +150,8 @@ class CalcController {
 
         }
     }
-
-    initButtomEvents(){
+ /* DEFININDO EVENTOS DE CLICKS     */ 
+     initButtomEvents(){
 
        let buttons = document.querySelectorAll("#buttons > g, #parts > g"); // > é o seletor de filhos
 
@@ -127,7 +171,7 @@ class CalcController {
 
     }
 
-
+    /* DEFININDO DATA E HORA DO DISPLAY   CALCULADORA */
     setDisplayDateTime(){
         this.displayDate = this.currentDate.toLocaleDateString(this._locale);
         this.displayTime = this.currentDate.toLocaleTimeString(this._locale);
