@@ -7,6 +7,7 @@ class CalcController {
         this._timeEl = document.querySelector("#hora");  // This - referencia de atributos e metodos
         this._currentDate;
         this.initialize();
+        this.initButtomEvents();
 
     }
 
@@ -17,6 +18,32 @@ class CalcController {
         setInterval(()=>{
             this.setDisplayDateTime();            
         }, 1000);// Os parâmetros são em milisegundos
+
+    }
+
+    addEventListenerAll(element, events, fn){
+
+        events.split(' ').forEach(event =>{
+
+            element.addEventListener(event, fn, false);
+
+        });
+
+    }
+
+    initButtomEvents(){
+
+       let buttons = document.querySelectorAll("#buttons > g, #parts > g"); // > é o seletor de filhos
+
+       buttons.forEach((btn, index)=>{
+           this.addEventListenerAll(btn, "click drag", e=>{
+               console.log(btn.className.baseVal.replace("btn-",""));// traz só o nome da clase, fica mais clean
+           });
+
+           this.addEventListenerAll(btn," mouseover mouseup mousedown", e=>{
+               btn.style.cursor = "pointer";
+           });
+       });
 
     }
 
