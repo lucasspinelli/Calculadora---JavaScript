@@ -66,10 +66,32 @@ class CalcController {
        return( ['+','-','*','%','/'].indexOf(value) > -1); // Não precisa de if ou else, pois ele ja retorna True or False
         
     }
+
+    pushOperation(value){
+        this._operation.push(value);
+
+        if(this._operation.length > 3){
+
+            this.calc();
+
+        }
+    }
+    calc(){
+
+        let last = this._operation.pop();
+
+        let result = eval(this._operation.join(""));
+
+        this._operation = [result, last];
+
+    }
+
+    setLastNumberToDisplay(){
+        
+    }
+    
 /* VALIDAÇÃO PARA OS BOTÕES, SE É UM NÚMERO, ACRESCENTA NO ARRAY, SEM MUDAR A POSIÇÃO */
     addOperation(value){
-        console.log('A', isNaN(this.getLastOperation()));
-
         if (isNaN(this.getLastOperation())){
             //String
             if(this.isOperator(value)){
@@ -79,21 +101,28 @@ class CalcController {
              } else if(isNaN(value)){
                 //outra coisa
                 
-                console.log(value);
+                console.log('outra coisa', value);
 
                 } else{
-                    this._operation.push(value);
+                    this.pushOperation(value);
                 }
             
 
         } else{
             //Number
-           let newValue = this.getLastOperation().toString() + value.toString();
-           this.setLastOperation(parseInt(newValue)); 
+            if (this.isOperator(value)){
+                this.pushOperation(value);
+            } else {
+                let newValue = this.getLastOperation().toString() + value.toString();
+                this.setLastOperation(parseInt(newValue));
+
+                //atualizar display
+                this.setLastNumberToDisplay();
+            }
+
+            
         }
 
-
-        console.log(this._operation);
 
     }
 
