@@ -2,6 +2,9 @@ class CalcController {
 
     constructor(){
 
+        this._lastOperator ='';
+        this._lastNumber = '';
+
         this._operation = [];
         this._locale = 'pt-BR';
         this._displayCalcEl = document.querySelector("#display"); // El é colocado por convensão para se referir ao elemento
@@ -21,6 +24,8 @@ class CalcController {
             this.setDisplayDateTime();            
         }, 1000);// Os parâmetros são em milisegundos
 
+        this.setLastNumberToDisplay();
+
     }
     // TRATANDO EVENTOS
     addEventListenerAll(element, events, fn){
@@ -37,11 +42,15 @@ class CalcController {
 
         this._operation = [];
 
+        this.setLastNumberToDisplay();
+
     }
     // LIMPAR O ULTIMO VALOR
     clearEntry(){
 
         this._operation.pop();
+
+        this.setLastNumberToDisplay();
 
     }   
     // TRATAR ERROS
@@ -76,18 +85,88 @@ class CalcController {
 
         }
     }
+    /* VARIAÇÕES DO BOTÃO = */
+
+    getResult(){
+
+        
+        return eval(this._operation.join(""));
+
+    }
+    // Começando com os calculos
     calc(){
 
-        let last = this._operation.pop();
+        let last = '';
 
-        let result = eval(this._operation.join(""));
+        this._lastOperator = this.getLastItem();
 
-        this._operation = [result, last];
+        if(this._operation.length < 3){
+
+            let firstItem = this._operation[0];
+            this._operation = [firstItem, this._lastOperator, this._lastNumber];
+        }
+
+        if (this._operation.length > 3){
+
+            last = this._operation.pop();             
+            this._lastNumber = this.getResult();
+        }
+
+         else if(this._operation.length == 3){ //Se tiver else if, não cai nos dois if
+
+            this._lastNumber = this.getLastItem(false);
+
+        }
+        let result = this.getResult();
+
+        if (last == '%'){
+
+           result /=  100; // Ele é igual a ele mesmo dividido por 100
+
+           this._operation = [result];
+
+        } else{
+
+            this._operation = [result];
+
+            if (last) this._operation.push(last);
+
+        }
+
+
+        this.setLastNumberToDisplay();
+
+    }
+
+    getLastItem(isOperator = true){
+
+        let lastItem;
+
+        for(let i = this._operation.length - 1; i>=0; i--){
+            if(this.isOperator(this._operation[i]) == isOperator){
+                lastItem = this._operation[i];
+                break; //para execução do For
+
+             }
+         }
+
+        if(!lastItem){
+
+            lastItem =(isOperator) ? this._lastOperator : this._lastNumber; // Operador ternário
+
+        }
+
+        return lastItem;
 
     }
 
     setLastNumberToDisplay(){
-        
+
+        let lastNumber = this.getLastItem(false);
+
+        if(!lastNumber) lastNumber = 0;
+
+        this.displayCalc = lastNumber;
     }
     
 /* VALIDAÇÃO PARA OS BOTÕES, SE É UM NÚMERO, ACRESCENTA NO ARRAY, SEM MUDAR A POSIÇÃO */
@@ -105,6 +184,8 @@ class CalcController {
 
                 } else{
                     this.pushOperation(value);
+
+                    this.setLastNumberToDisplay();
                 }
             
 
@@ -153,7 +234,7 @@ class CalcController {
                 this.addOperation('%')
                  break;
             case 'igual':
-                
+                this.calc();
                  break;
             case 'ponto':
                 this.addOperation('.')
