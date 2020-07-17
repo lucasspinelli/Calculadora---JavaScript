@@ -2,6 +2,9 @@ class CalcController {
 
     constructor(){
 
+        this._audio = new Audio ('click.mp3'); // Não é uma classe nativa Audio Web API - Pesquisar
+        this._audioOnOff = false;
+
         this._lastOperator ='';
         this._lastNumber = '';
 
@@ -28,6 +31,33 @@ class CalcController {
 
         this.setLastNumberToDisplay();
         this.pasteFromClipboard();
+
+        document.querySelectorAll('.btn-ac').forEach(btn=>{
+
+            btn.addEventListener('dblclick', e=>{
+
+                this.toggleAudio();
+
+            });
+
+        });
+
+    }
+    /*INSERINDO AUDIO*/
+    toggleAudio(){
+
+        this._audioOnOff = !this._audioOnOff; // Assim ele nega ele mesmo e sempre inverte os valores
+
+    }
+
+    playAudio(){
+        
+       if (this._audioOnOff) {
+
+        this._audio.currentTime = 0;
+        this._audio.play();
+
+       }
 
     }
     // CTRL +c CTRK +V 
@@ -63,6 +93,8 @@ class CalcController {
     initKeyBoard(){
 
         document.addEventListener('keyup', e=>{
+
+            this.playAudio();
 
             switch (e.key){
 
@@ -179,8 +211,16 @@ class CalcController {
 
     getResult(){
 
+        try{ //Tratando erros com try Catch Posso colocar em toda area sensível da aplicação
+             return eval(this._operation.join(""));
+    }   catch(e) {
+
+        setTimeout(()=>{
+            this.setError()
+        }, 1);
         
-        return eval(this._operation.join(""));
+
+    }
 
     }
     // Começando com os calculos
@@ -313,6 +353,9 @@ class CalcController {
     /* CASOS DE CLICKS DO BOTÃO*/
 
     execBtn(value){
+
+        this.playAudio();
+
         switch (value){
 
             case 'ac':
@@ -363,7 +406,7 @@ class CalcController {
 
         }
     }
- /* DEFININDO EVENTOS DE CLICKS     */ 
+ /* DEFININDO EVENTOS DE CLICKS */ 
      initButtomEvents(){
 
        let buttons = document.querySelectorAll("#buttons > g, #parts > g"); // > é o seletor de filhos
@@ -406,10 +449,21 @@ class CalcController {
     }
 
     get displayCalc(){
+
+
         return this._displayCalcEl.innerHTML;
+
     }
 
     set displayCalc(value){
+
+        if(value.toString().length > 10){
+
+            this.setError();
+            return false;
+
+        }
+
         this._displayCalcEl.innerHTML = value;
     }
 
